@@ -14,6 +14,111 @@ namespace Masuit.Tools.DateTimeExt
     public static class DateTimeHelper
     {
         /// <summary>
+        /// 转换为日期的起始时刻。
+        /// </summary>
+        /// <param name="time">当前的日期。</param>
+        /// <returns>日期在0点0分0秒的时刻。</returns>
+        public static DateTime StartOfDay(this DateTime time)
+        {
+            return new DateTime(time.Year, time.Month, time.Day, 0, 0, 0);
+        }
+
+        /// <summary>
+        ///转换为日期的终止时刻。
+        /// </summary>
+        /// <param name="time">当前的日期。</param>
+        /// <returns>日期在23点59分59秒的时刻。</returns>
+        public static DateTime EndOfDay(this DateTime time)
+        {
+            return new DateTime(time.Year, time.Month, time.Day, 23, 59, 59);
+        }
+
+        /// <summary>
+        /// 获取当前日期中本月的第一天。
+        /// </summary>
+        /// <param name="date">当前的日期。</param>
+        /// <returns>指定日期中本月的第一天。</returns>
+        public static DateTime StartOfMonth(this DateTime date)
+        {
+            return new DateTime(date.Year, date.Month, 1, date.Hour, date.Minute, date.Second);
+        }
+
+        /// <summary>
+        /// 获取当前日期中本月的最后一天。
+        /// </summary>
+        /// <param name="date">当前的日期。</param>
+        /// <returns>指定日期中本月的最后一天。</returns>
+        public static DateTime EndOfMonth(this DateTime date)
+        {
+            return date.AddMonths(1).StartOfMonth().AddDays(-1);
+        }
+
+        /// <summary>
+        /// 获取当前日期中本周的第一天。
+        /// </summary>
+        /// <param name="date">当前的日期。</param>
+        /// <returns>指定日期中本周的第一天。</returns>
+        public static DateTime StartOfWeek(this DateTime date)
+        {
+            var startDayOfWeek = DayOfWeek.Monday;
+            if (date.DayOfWeek != startDayOfWeek)
+            {
+                var d = startDayOfWeek - date.DayOfWeek;
+                return startDayOfWeek <= date.DayOfWeek ? date.AddDays(d) :
+                    date.AddDays(-7 + d);
+            }
+
+            return date;
+        }
+        /// <summary>
+        /// 获取当前日期中本周的最后一天。
+        /// </summary>
+        /// <param name="date">当前的日期。</param>
+        /// <returns>指定日期中本周的最后一天。</returns>
+        public static DateTime EndOfWeek(this DateTime date)
+        {
+            var startDayOfWeek = DayOfWeek.Monday;
+            var endDayOfWeek = startDayOfWeek - 1;
+            if (endDayOfWeek < 0)
+            {
+                endDayOfWeek = DayOfWeek.Saturday;
+            }
+
+            if (date.DayOfWeek != endDayOfWeek)
+            {
+                if (endDayOfWeek == date.DayOfWeek)
+                {
+                    return date.AddDays(6);
+                }
+
+                if (endDayOfWeek < date.DayOfWeek)
+                {
+                    return date.AddDays(7 - (date.DayOfWeek - endDayOfWeek));
+                }
+
+                return date.AddDays(endDayOfWeek - date.DayOfWeek);
+            }
+
+            return date;
+        }
+        /// <summary>
+        /// 将日期转换为 <see cref="DateTimeOffset"/>。
+        /// </summary>
+        /// <param name="localDateTime"></param>
+        /// <param name="localTimeZone"></param>
+        /// <returns></returns>
+        public static DateTimeOffset ToDateTimeOffset(this DateTime localDateTime, TimeZoneInfo? localTimeZone = null)
+        {
+            localTimeZone = localTimeZone ?? TimeZoneInfo.Local;
+
+            if (localDateTime.Kind != DateTimeKind.Unspecified)
+            {
+                localDateTime = new DateTime(localDateTime.Ticks, DateTimeKind.Unspecified);
+            }
+
+            return TimeZoneInfo.ConvertTimeToUtc(localDateTime, localTimeZone);
+        }
+        /// <summary>
         /// 获取某一年有多少周
         /// </summary>
         /// <param name="now"></param>
